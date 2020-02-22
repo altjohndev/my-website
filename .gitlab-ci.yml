@@ -1,0 +1,170 @@
+image: ritproject/cli:docker
+services:
+  - docker:dind
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+stages:
+  - test
+  - update project images
+  - update production images
+  - deploy
+before_script:
+  - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
+  - rit --log on_error config tunnel add repo https://github.com/altjohndev/tunnel-workspace --name workspace
+  - rit --log on_error config tunnel default set workspace
+
+# Stage: test
+
+test:
+  stage: test
+  variables:
+    COMPOSE_DOCKERFILE_BUILD_TYPE: recursive
+  script:
+    - rit --log on_error tunnel --input disabled run my website test build
+    - rit --log on_error tunnel --input disabled run my website test up
+    - rit --log on_error tunnel --input disabled run my website test exec
+  only:
+    changes:
+      - ./**/*.{ex,exs}
+      - .gitlab-ci.yml
+      - assets/**/*
+      - lib/my_website_web/templates/**/*.{eex,leex}
+      - priv/gettext/**/*.{po,pot}
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /--do-not-trigger-ci/
+      - $CI_COMMIT_MESSAGE =~ /--skip-stage-test/
+      - $CI_COMMIT_MESSAGE =~ /--skip-job-test/
+  tags:
+    - docker
+
+# Stage: update project images
+
+.update_project_image: &update_project_image
+  stage: update project images
+  only:
+    changes:
+      - ./**/*.{ex,exs}
+      - .gitlab-ci.yml
+      - assets/**/*
+      - lib/my_website_web/templates/**/*.{eex,leex}
+      - priv/gettext/**/*.{po,pot}
+    refs:
+      - /^master$/
+  tags:
+    - docker
+
+update development image:
+  <<: *update_project_image
+  script:
+    - rit --log on_error tunnel --input disabled run my website development build
+    - rit --log on_error tunnel --input disabled run my website development push
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /--do-not-trigger-ci/
+      - $CI_COMMIT_MESSAGE =~ /--skip-stage-update-project-images/
+      - $CI_COMMIT_MESSAGE =~ /--skip-job-update-development-image/
+
+update test image:
+  <<: *update_project_image
+  script:
+    - rit --log on_error tunnel --input disabled run my website test build
+    - rit --log on_error tunnel --input disabled run my website test push
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /--do-not-trigger-ci/
+      - $CI_COMMIT_MESSAGE =~ /--skip-stage-update-project-images/
+      - $CI_COMMIT_MESSAGE =~ /--skip-job-update-test-image/
+
+update release image:
+  <<: *update_project_image
+  script:
+    - rit --log on_error tunnel --input disabled run my website release build
+    - rit --log on_error tunnel --input disabled run my website release push
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /--do-not-trigger-ci/
+      - $CI_COMMIT_MESSAGE =~ /--skip-stage-update-project-images/
+      - $CI_COMMIT_MESSAGE =~ /--skip-job-update-release-image/
+
+# Stage: update production images
+
+.update_production_image: &update_production_image
+  stage: update production images
+  script:
+    - rit --log on_error tunnel --input disabled run my website release build
+    - rit --log on_error tunnel --input disabled run my website production build
+    - rit --log on_error tunnel --input disabled run my website production push
+  tags:
+    - docker
+
+update unstable image:
+  <<: *update_production_image
+  variables:
+    COMPOSE_DOCKERFILE_BUILD_TYPE: recursive
+    COMPOSE_IMAGE_TAG: unstable
+  environment:
+    name: unstable
+  only:
+    changes:
+      - ./**/*.{ex,exs}
+      - .gitlab-ci.yml
+      - assets/**/*
+      - lib/my_website_web/templates/**/*.{eex,leex}
+      - priv/gettext/**/*.{po,pot}
+    refs:
+      - /^develop$/
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /--do-not-trigger-ci/
+      - $CI_COMMIT_MESSAGE =~ /--skip-stage-update-production-image/
+      - $CI_COMMIT_MESSAGE =~ /--skip-job-update-unstable-image/
+
+update production image:
+  <<: *update_production_image
+  variables:
+    COMPOSE_DOCKERFILE_BUILD_TYPE: recursive
+    COMPOSE_IMAGE_TAG: production
+  environment:
+    name: production
+  only:
+    changes:
+      - ./**/*.{ex,exs}
+      - .gitlab-ci.yml
+      - assets/**/*
+      - lib/my_website_web/templates/**/*.{eex,leex}
+      - priv/gettext/**/*.{po,pot}
+    refs:
+      - /^master$/
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /--do-not-trigger-ci/
+      - $CI_COMMIT_MESSAGE =~ /--skip-stage-update-production-image/
+      - $CI_COMMIT_MESSAGE =~ /--skip-job-update-production-image/
+
+deploy production:
+  stage: deploy
+  environment:
+    name: production
+  script:
+    - cp $SSH_PRIVATE_KEY secrets/gce-ssh-rsa-private-key
+    - rit --log on_error tunnel --input disabled run my website production deploy pull
+    - rit --log on_error tunnel --input disabled run my website production deploy up
+    - rit --log on_error tunnel --input disabled run my website production deploy sync
+    - rit --log on_error tunnel --input disabled run my website production deploy playbook
+  only:
+    changes:
+      - ./**/*.{ex,exs}
+      - .gitlab-ci.yml
+      - assets/**/*
+      - lib/my_website_web/templates/**/*.{eex,leex}
+      - priv/gettext/**/*.{po,pot}
+    refs:
+      - /^master$/
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /--do-not-trigger-ci/
+      - $CI_COMMIT_MESSAGE =~ /--skip-stage-deploy/
+      - $CI_COMMIT_MESSAGE =~ /--skip-job-deploy-production/
+  tags:
+    - docker
