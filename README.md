@@ -18,14 +18,23 @@
 | `APP_DATABASE_POOL_SIZE` | `10`         | String  | Maximum amount of concurrent database connections           |
 | `APP_DATABASE_USERNAME`  | `postgres`   | String  | PostgreSQL username                                         |
 
-### Endpoint
+### Endpoint (General)
 
-| Name                   | Default         | Pattern | Description                                                  |
-| :--------------------- | :-------------- | :------ | :----------------------------------------------------------- |
-| `APP_HOSTNAME`         | Must be defined | String  | The website hostname                                         |
-| `APP_ORIGIN_HOSTNAMES` | Must be defined | String  | Hostnames allowed to request pages to website                |
-| `APP_PORTS`            | `80`            | Integer | The website port                                             |
-| `APP_SECRET_KEY_BASE`  | Must be defined | String  | Base secret key to encrypt data between requester and server |
+| Name                   | Default         | Pattern | Description                                                               |
+| :--------------------- | :-------------- | :------ | :------------------------------------------------------------------------ |
+| `APP_HOSTNAME`         | Must be defined | String  | The website hostname                                                      |
+| `APP_ORIGIN_HOSTNAMES` | Must be defined | String  | Hostnames allowed to request pages to website (with http or https prefix) |
+| `APP_PORT`             | `80`            | Integer | The website http port                                                     |
+| `APP_SECRET_KEY_BASE`  | Must be defined | String  | Base secret key to encrypt data between requester and server              |
+
+### Endpoint (HTTPS)
+
+| Name                  | Default                                    | Pattern | Description                                      |
+| :-------------------- | :----------------------------------------- | :------ | :----------------------------------------------- |
+| `APP_CACERTFILE_PATH` | Must be defined if `ALLOW_HTTPS` is `true` | String  | The absolute path to CA certificates chain file  |
+| `APP_CERTFILE_PATH`   | Must be defined if `ALLOW_HTTPS` is `true` | String  | The absolute path to regular certificates file   |
+| `APP_KEYFILE_PATH`    | Must be defined if `ALLOW_HTTPS` is `true` | String  | The absolute path to private key file            |
+| `APP_HTTPS`           | `true`                                     | Boolean | If `false`, the website will only configure http |
 
 ### Logger
 

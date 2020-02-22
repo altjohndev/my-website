@@ -9,7 +9,6 @@ stages:
   - update production images
   - deploy
 before_script:
-  - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
   - rit --log on_error config tunnel add repo https://github.com/altjohndev/tunnel-workspace --name workspace
   - rit --log on_error config tunnel default set workspace
 
@@ -25,11 +24,8 @@ test:
     - rit --log on_error tunnel --input disabled run my website test exec
   only:
     changes:
-      - ./**/*.{ex,exs}
-      - .gitlab-ci.yml
+      - '**/*.{eex,ex,exs,leex,po,pot,yml}'
       - assets/**/*
-      - lib/my_website_web/templates/**/*.{eex,leex}
-      - priv/gettext/**/*.{po,pot}
   except:
     variables:
       - $CI_COMMIT_MESSAGE =~ /--do-not-trigger-ci/
@@ -43,14 +39,8 @@ test:
 .update_project_image: &update_project_image
   stage: update project images
   only:
-    changes:
-      - ./**/*.{ex,exs}
-      - .gitlab-ci.yml
-      - assets/**/*
-      - lib/my_website_web/templates/**/*.{eex,leex}
-      - priv/gettext/**/*.{po,pot}
-    refs:
-      - /^master$/
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /--update-project-images/
   tags:
     - docker
 
@@ -58,34 +48,22 @@ update development image:
   <<: *update_project_image
   script:
     - rit --log on_error tunnel --input disabled run my website development build
+    - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
     - rit --log on_error tunnel --input disabled run my website development push
-  except:
-    variables:
-      - $CI_COMMIT_MESSAGE =~ /--do-not-trigger-ci/
-      - $CI_COMMIT_MESSAGE =~ /--skip-stage-update-project-images/
-      - $CI_COMMIT_MESSAGE =~ /--skip-job-update-development-image/
 
 update test image:
   <<: *update_project_image
   script:
     - rit --log on_error tunnel --input disabled run my website test build
+    - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
     - rit --log on_error tunnel --input disabled run my website test push
-  except:
-    variables:
-      - $CI_COMMIT_MESSAGE =~ /--do-not-trigger-ci/
-      - $CI_COMMIT_MESSAGE =~ /--skip-stage-update-project-images/
-      - $CI_COMMIT_MESSAGE =~ /--skip-job-update-test-image/
 
 update release image:
   <<: *update_project_image
   script:
+    - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
     - rit --log on_error tunnel --input disabled run my website release build
     - rit --log on_error tunnel --input disabled run my website release push
-  except:
-    variables:
-      - $CI_COMMIT_MESSAGE =~ /--do-not-trigger-ci/
-      - $CI_COMMIT_MESSAGE =~ /--skip-stage-update-project-images/
-      - $CI_COMMIT_MESSAGE =~ /--skip-job-update-release-image/
 
 # Stage: update production images
 
@@ -94,6 +72,7 @@ update release image:
   script:
     - rit --log on_error tunnel --input disabled run my website release build
     - rit --log on_error tunnel --input disabled run my website production build
+    - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
     - rit --log on_error tunnel --input disabled run my website production push
   tags:
     - docker
@@ -107,11 +86,8 @@ update unstable image:
     name: unstable
   only:
     changes:
-      - ./**/*.{ex,exs}
-      - .gitlab-ci.yml
+      - '**/*.{eex,ex,exs,leex,po,pot,yml}'
       - assets/**/*
-      - lib/my_website_web/templates/**/*.{eex,leex}
-      - priv/gettext/**/*.{po,pot}
     refs:
       - /^develop$/
   except:
@@ -129,11 +105,8 @@ update production image:
     name: production
   only:
     changes:
-      - ./**/*.{ex,exs}
-      - .gitlab-ci.yml
+      - '**/*.{eex,ex,exs,leex,po,pot,yml}'
       - assets/**/*
-      - lib/my_website_web/templates/**/*.{eex,leex}
-      - priv/gettext/**/*.{po,pot}
     refs:
       - /^master$/
   except:
@@ -147,18 +120,14 @@ deploy production:
   environment:
     name: production
   script:
-    - cp $SSH_PRIVATE_KEY secrets/gce-ssh-rsa-private-key
     - rit --log on_error tunnel --input disabled run my website production deploy pull
     - rit --log on_error tunnel --input disabled run my website production deploy up
     - rit --log on_error tunnel --input disabled run my website production deploy sync
     - rit --log on_error tunnel --input disabled run my website production deploy playbook
   only:
     changes:
-      - ./**/*.{ex,exs}
-      - .gitlab-ci.yml
+      - '**/*.{eex,ex,exs,leex,po,pot,yml}'
       - assets/**/*
-      - lib/my_website_web/templates/**/*.{eex,leex}
-      - priv/gettext/**/*.{po,pot}
     refs:
       - /^master$/
   except:

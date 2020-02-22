@@ -52,15 +52,9 @@ config :logger, :console,
 # Endpoint
 
 hostname = get_or_raise!.("APP_HOSTNAME", :string)
+origin_hostnames = get_or_raise!.("APP_ORIGIN_HOSTNAMES", :string) |> String.split(",")
 port = get.("APP_PORT", :integer, 80)
 secret_key_base = get_or_raise!.("APP_SECRET_KEY_BASE", :string)
-
-origin_hostnames =
-  "APP_ORIGIN_HOSTNAMES"
-  |> get_or_raise!.(:string, "localhost")
-  |> String.split(",")
-  |> Enum.map(fn hostname -> ["http://#{hostname}:#{port}", "https://#{hostname}:#{port}"] end)
-  |> List.flatten()
 
 config :my_website, MyWebsiteWeb.Endpoint,
   cache_static_manifest: "priv/static/cache_manifest.json",
@@ -68,6 +62,23 @@ config :my_website, MyWebsiteWeb.Endpoint,
   http: [port: port],
   secret_key_base: secret_key_base,
   url: [host: hostname, port: port]
+
+if get.("APP_HTTPS", :boolean, true) do
+  certfile_path = get_or_raise!.("APP_CERTFILE_PATH", :string)
+  keyfile_path = get_or_raise!.("APP_KEYFILE_PATH", :string)
+  cacertfile_path = get_or_raise!.("APP_CACERTFILE_PATH", :string)
+
+  config :my_website, MyWebsiteWeb.Endpoint,
+    https: [
+      cacertfile: cacertfile_path,
+      cipher_suite: :strong,
+      certfile: certfile_path,
+      keyfile: keyfile_path,
+      otp_app: :my_website,
+      port: 443
+    ],
+    force_ssl: [rewrite_on: [:x_forwarded_proto], host: nil]
+end
 
 # Repo
 

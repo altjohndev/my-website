@@ -17,7 +17,7 @@ defmodule MyWebsiteWeb do
   and import those modules here.
   """
 
-  @spec channel :: {:__block__, [], any}
+  @spec controller :: {:__block__, [], any}
   def controller do
     quote do
       use Phoenix.Controller, namespace: MyWebsiteWeb
@@ -29,7 +29,7 @@ defmodule MyWebsiteWeb do
     end
   end
 
-  @spec channel :: {:__block__, [], any}
+  @spec view :: {:__block__, [], any}
   def view do
     quote do
       use Phoenix.View,
@@ -50,7 +50,7 @@ defmodule MyWebsiteWeb do
     end
   end
 
-  @spec channel :: {:__block__, [], any}
+  @spec router :: {:__block__, [], any}
   def router do
     quote do
       use Phoenix.Router
