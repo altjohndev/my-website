@@ -10,7 +10,7 @@ config :my_website, MyWebsiteWeb.Endpoint,
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
       ~r"lib/flux_device_manager_web/(live|views)/.*(ex)$",
-      ~r"lib/flux_device_manager_web/templates/.*(eex)$"
+      ~r"lib/flux_device_manager_web/templates/.*(eex|leex)$"
     ]
   ],
   watchers: [

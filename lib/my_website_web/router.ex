@@ -12,11 +12,6 @@ defmodule MyWebsiteWeb.Router do
   scope "/", MyWebsiteWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
+    live "/", UnderConstructionLive
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", MyWebsiteWeb do
-  #   pipe_through :api
-  # end
 end
