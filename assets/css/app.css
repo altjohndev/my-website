@@ -7,39 +7,11 @@ body {
 }
 
 .under-construction {
-  transition: background-color 0.5s ease;
+  transition: background-color 3.0s linear;
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100vh;
-}
-
-.under-construction.color-0 {
-  background-color: #24292e;
-}
-
-.under-construction.color-1,
-.under-construction.color-9 {
-  background-color: #024866;
-}
-
-.under-construction.color-2,
-.under-construction.color-8 {
-  background-color: #438eaf;
-}
-
-.under-construction.color-3,
-.under-construction.color-7 {
-  background-color: #e5e5a5;
-}
-
-.under-construction.color-4,
-.under-construction.color-6 {
-  background-color: #fabe6c;
-}
-
-.under-construction.color-5 {
-  background-color: #ff6600;
 }
 
 .logo-box {
@@ -52,108 +24,12 @@ body {
   margin-right: auto;
 }
 
-.logo-circle {
-  transition: fill 1.0s ease;
-}
-
-.logo-circle.color-0,
-.logo-circle.color-2,
-.logo-circle.color-4,
-.logo-circle.color-6,
-.logo-circle.color-8 {
-  fill: #ffffff;
-}
-
-.logo-circle.color-1,
-.logo-circle.color-3,
-.logo-circle.color-5,
-.logo-circle.color-7,
-.logo-circle.color-9 {
-  fill: #000000;
-}
-
-.logo-a {
-  transition: fill 1.0s ease;
-}
-
-.logo-a.color-0 {
-  fill: #ff6600;
-}
-
-.logo-a.color-1,
-.logo-a.color-9 {
-  fill: #fabe6c;
-}
-
-.logo-a.color-2,
-.logo-a.color-8 {
-  fill: #024866;
-}
-
-.logo-a.color-3,
-.logo-a.color-7 {
-  fill: #e5e5a5;
-}
-
-.logo-a.color-4,
-.logo-a.color-6 {
-  fill: #438eaf;
-}
-
-.logo-a.color-5 {
-  fill: #ffffff;
-}
-
-.logo-j {
-  transition: fill 1.0s ease;
-}
-
-.logo-j.color-0 {
-  fill: #024866;
-}
-
-.logo-j.color-1,
-.logo-j.color-9 {
-  fill: #438eaf;
-}
-
-.logo-j.color-2,
-.logo-j.color-8 {
-  fill: #ff6600;
-}
-
-.logo-j.color-3,
-.logo-j.color-7 {
-  fill: #fabe6c;
-}
-
-.logo-j.color-4,
-.logo-j.color-6 {
-  fill: #e5e5a5;
-}
-
-.logo-j.color-5 {
-  fill: #438eaf;
+.logo-a, .logo-j, .logo-circle {
+  transition: fill 5.0s linear;
 }
 
 .content {
-  transition: color 1.0s ease;
+  transition: color 1.0s ease-out;
   text-align: center;
   font-family: monospace;
-}
-
-.content.color-0,
-.content.color-2,
-.content.color-4,
-.content.color-6,
-.content.color-8 {
-  color: #ffffff;
-}
-
-.content.color-1,
-.content.color-3,
-.content.color-5,
-.content.color-7,
-.content.color-9 {
-  color: #000000;
 }

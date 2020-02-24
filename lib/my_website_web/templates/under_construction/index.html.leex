@@ -1,14 +1,17 @@
-<section class="under-construction color-<%= @color_id %>">
+<section class="under-construction" style="background-color:#<%= @background_color %>">
   <div class="container">
     <div class="logo-box">
       <svg class="logo" width="300px" height="300px" viewBox="0 0 300 300">
-        <circle class="logo-circle color-<%= @color_id %>" cx="150" cy="150" r="130"/>
-        <polygon class="logo-a color-<%= @color_id %>" points="137,56 62,186 76,186 137,80 198,186 212,186"/>
-        <polygon class="logo-j color-<%= @color_id %>" points="150,34 140,50 222,191 59,191 50,207 250,207"/>
+        <circle class="logo-circle" cx="150" cy="150" r="130"
+          style="fill:#<%= @circle_color %>"/>
+        <polygon class="logo-a" points="137,56 62,186 76,186 137,80 198,186 212,186"
+          style="fill:#<%= @a_color %>"/>
+        <polygon class="logo-j" points="150,34 140,50 222,191 59,191 50,207 250,207"
+          style="fill:#<%= @j_color %>"/>
       </svg>
     </div>
-    <div class="content color-<%= @color_id %>">
-      <h2>This page is under development</h2>
+    <div class="content color" style="color:#<%= @message_color %>">
+      <h2><%= @message %></h2>
     </div>
   </div>
 </section>
